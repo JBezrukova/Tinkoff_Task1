@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Tinkoff_Task1</string>
+    <string name="getContactButton">Get list of contacts</string>
+    <string name="waiting">Waiting while getting contacts</string>
+</resources>
