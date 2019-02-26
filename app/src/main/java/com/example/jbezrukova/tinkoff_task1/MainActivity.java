@@ -3,17 +3,18 @@ package com.example.jbezrukova.tinkoff_task1;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,16 +44,20 @@ public class MainActivity extends AppCompatActivity {
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
 
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-            getContacts.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivityForResult(getContactsActivity, SECOND_ACTIVITY_RESULT_CODE);
-                }
-            });
+            setOnClickToGetContacts();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
                     REQUEST_CODE_READ_CONTACTS);
         }
+    }
+
+    private void setOnClickToGetContacts() {
+        getContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(getContactsActivity, SECOND_ACTIVITY_RESULT_CODE);
+            }
+        });
     }
 
     @Override
@@ -61,16 +66,10 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_CODE_READ_CONTACTS:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getContacts.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startActivityForResult(getContactsActivity, SECOND_ACTIVITY_RESULT_CODE);
-                        }
-                    });
+                    setOnClickToGetContacts();
                 } else {
-                    Toast.makeText(getApplicationContext(), "No permission granted", Toast.LENGTH_LONG);
+                    Toast.makeText(getApplicationContext(), "No permission granted", Toast.LENGTH_LONG).show();
                 }
-                return;
         }
     }
 
@@ -81,14 +80,17 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == SECOND_ACTIVITY_RESULT_CODE && resultCode == RESULT_OK) {
             Log.d(TAG, "Starting getting result");
             HashMap<String, String> listOfContacts = (HashMap<String, String>) data.getExtras().get("list");
-            contactList = new ArrayList<>();
-            for (Map.Entry entry : listOfContacts.entrySet()) {
-                contactList.add(entry.getKey() + "  " + entry.getValue());
+            if (listOfContacts.size() > 0) {
+                contactList = new ArrayList<>();
+                for (Map.Entry entry : listOfContacts.entrySet()) {
+                    contactList.add(entry.getKey() + "  " + entry.getValue());
+                }
+                Collections.sort(contactList);
+                setItemsToList();
+            } else {
+                Toast.makeText(getApplicationContext(), "No contacts founded", Toast.LENGTH_LONG).show();
             }
-            Collections.sort(contactList);
-            setItemsToList();
         }
-
     }
 
     private void setItemsToList() {
